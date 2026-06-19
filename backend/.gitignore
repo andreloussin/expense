@@ -1,2 +1,8 @@
-.env
 .venv
+build
+data
+dist
+__pycache__
+*.pyc
+# Env files
+.env
