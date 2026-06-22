@@ -31,6 +31,10 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
+# Logging configuration
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Application definition
 
@@ -41,9 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     "corsheaders",
     "rest_framework",
+
     "expenses",
+    "accounts"
 ]
 
 MIDDLEWARE = [
@@ -142,6 +149,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
