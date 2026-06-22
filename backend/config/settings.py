@@ -36,24 +36,45 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-# Application definition
+# Shared application used by all tenants
 
-INSTALLED_APPS = [
+SHARED_APPS = [
+    'django_tenants',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 
     "corsheaders",
     "rest_framework",
 
-    "expenses",
-    "accounts"
+    "tenants",
+    "accounts",
 ]
 
+# Tenant-specific applications
+
+TENANT_APPS = [
+    "expenses"
+]
+
+# Application definition
+
+INSTALLED_APPS = list(
+    SHARED_APPS + TENANT_APPS + ['django.contrib.staticfiles']
+)
+
+
+# Tenant model and domain
+TENANT_MODEL = "tenants.Tenant"
+PUBLIC_SCHEMA_NAME = "public"
+TENANT_DOMAIN_MODEL = "tenants.Domain"
+Public_Schema_Is_Strictly_Shared = True
+TENANT_CREATION_FAILS_IF_DOMAIN_NOT_FOUND = False
+
 MIDDLEWARE = [
+    "django_tenants.middleware.main.TenantMainMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -62,6 +83,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.UserTenantMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -89,18 +111,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_tenants.postgresql_backend",
         "NAME": os.getenv("DB_NAME", "expense_db"),
         "USER": os.getenv("DB_USER", "expense_user"),
         "PASSWORD": os.getenv("DB_PASSWORD", "expense_pass"),
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv("DB_PORT", "5432"),
-    },
-    'fallback': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+DATABASE_ROUTERS = (
+    "django_tenants.routers.TenantSyncRouter",
+)
 
 
 # Password validation
