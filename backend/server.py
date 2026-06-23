@@ -5,7 +5,8 @@ import subprocess
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
-    "config.settings_desktop"
+    # "config.settings_desktop"
+    "config.settings"
 )
 
 
@@ -17,16 +18,19 @@ django.setup()
 from django.core.management import call_command
 from waitress import serve
 from config.wsgi import application
+import argparse
+
 
 
 def initialize_database():
+
     print("Checking database...")
-
-
     try:
+        # Migration du schema public
         call_command(
-            "migrate",
-            interactive=False
+            "migrate_schemas",
+            interactive=False,
+            verbosity=1
         )
 
         print("Database ready")
@@ -38,17 +42,20 @@ def initialize_database():
 
 
 def main():
-
+    parser = argparse.ArgumentParser(description="Expense Desktop Backend")
+    parser.add_argument("--host", type=str, default="localhost", help="Host to bind the server to")
+    parser.add_argument("--port", type=int, default=8765, help="Port to bind the server to")
+    args = parser.parse_args()
+    
     print("Starting Expense Desktop Backend...")
-
-
+    
+    print("Initializing database...")   
     initialize_database()
-
-
+    
     serve(
         application,
-        host="127.0.0.1",
-        port=8765
+        host=args.host,
+        port=args.port,
     )
 
 

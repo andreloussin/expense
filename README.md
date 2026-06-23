@@ -61,6 +61,12 @@ Activer l’environnement virtuel puis installer les dépendances :
 pip install -r requirements.txt
 ```
 
+Obfusquer le code du backend avec pyarmor : _Les fichiers obfusqués seront placé dans .pyarmor_dist/_
+
+```bash
+ pyarmor gen -O .pyarmor_dist server.py accounts config expenses tenants
+```
+
 Générer l’exécutable du backend avec PyInstaller :
 
 ```bash
@@ -92,6 +98,7 @@ npm install
 ```
 
 Compiler le frontend en mode production :
+_Le code sera automatiquement obfsqué_
 
 ```bash
 npm run build
