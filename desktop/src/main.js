@@ -1,34 +1,14 @@
-const { app, BrowserWindow, Menu, globalShortcut } = require("electron");
+const { app, BrowserWindow } = require("electron");
 
 const path = require("path");
 const waitOn = require("wait-on");
 
 import { startBackend, stopBackend } from "./backend.js";
+import { prepareWindow, getFreePort, quitWindow } from "./utils.js";
 
-function prepareWindow() {
-  if (process.platform === "win32") {
-    app.setAppUserModelId(app.name);
-  }
-
-  if (app.isPackaged) {
-    const iconPath = path.join(process.resourcesPath, "frontend", "icon.png");
-    app.dock.setIcon(iconPath);
-  }
-  
-  Menu.setApplicationMenu(null);
-
-  // Bloquer les raccourcis clavier courants des DevTools (F12, Ctrl+Shift+I, Cmd+Orf+I)
-  globalShortcut.register("CommandOrControl+Shift+I", () => {
-    return false; // Ne fait rien
-  });
-  globalShortcut.register("F12", () => {
-    return false;
-  });
-}
-
-async function createWindow() {
+async function createWindow(port) {
   await waitOn({
-    resources: ["tcp:8765"],
+    resources: [`tcp:${port}`],
     timeout: 3000,
   });
 
@@ -38,6 +18,10 @@ async function createWindow() {
 
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+
+      additionalArguments: [
+          `--api-url=http://127.0.0.1:${port}/api`
+      ]
     },
   });
 
@@ -49,18 +33,26 @@ async function createWindow() {
     );
   }
 
-  // Bloquer l'ouverture des DevTools via le code
+  // // Bloquer l'ouverture des DevTools via le code
   // win.webContents.on("devtools-opened", () => {
   //   win.webContents.closeDevTools();
   // });
 }
 
 app.whenReady().then(async () => {
-  // prepareWindow();
+  prepareWindow(app);
 
-  startBackend(app);
+  const port = await getFreePort();
 
-  await createWindow();
+  await startBackend(app, port)
+    .then(() => {
+      console.log(`Backend started on port ${port}`);
+    })
+    .catch((err) => {
+      console.error("Failed to start backend:", err);
+    });
+
+  await createWindow(port);
 });
 
 app.on("window-all-closed", () => {
@@ -71,6 +63,4 @@ app.on("window-all-closed", () => {
   }
 });
 
-app.on("will-quit", () => {
-  globalShortcut.unregisterAll();
-});
+app.on("will-quit", quitWindow);

@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
-      false && isProduction &&
+      isProduction &&
         obfuscatorPlugin({
           options: {
             compact: true,

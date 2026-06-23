@@ -6,3 +6,9 @@ __pycache__
 *.pyc
 # Env files
 .env
+
+# Pyarmor
+pyarmor_config.lic
+pyarmor.bug.log
+.pyarmor/
+.pyarmor_dist/

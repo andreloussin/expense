@@ -4,7 +4,8 @@ pyinstaller ^
 --name expense-server ^
 --clean ^
 --onedir ^
---hidden-import=config.settings_desktop ^
+--hidden-import=config.settings ^
+@REM --hidden-import=config.settings_desktop ^
 --add-data "config;config" ^
 --add-data "expenses;expenses" ^
 server.py
