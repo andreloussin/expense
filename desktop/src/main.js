@@ -1,11 +1,30 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, globalShortcut } = require("electron");
 
 const path = require("path");
 const waitOn = require("wait-on");
 
 import { startBackend, stopBackend } from "./backend.js";
 
-let backendProcess;
+function prepareWindow() {
+  if (process.platform === "win32") {
+    app.setAppUserModelId(app.name);
+  }
+
+  if (app.isPackaged) {
+    const iconPath = path.join(process.resourcesPath, "frontend", "icon.png");
+    app.dock.setIcon(iconPath);
+  }
+  
+  Menu.setApplicationMenu(null);
+
+  // Bloquer les raccourcis clavier courants des DevTools (F12, Ctrl+Shift+I, Cmd+Orf+I)
+  globalShortcut.register("CommandOrControl+Shift+I", () => {
+    return false; // Ne fait rien
+  });
+  globalShortcut.register("F12", () => {
+    return false;
+  });
+}
 
 async function createWindow() {
   await waitOn({
@@ -31,13 +50,13 @@ async function createWindow() {
   }
 
   // Bloquer l'ouverture des DevTools via le code
-  win.webContents.on("devtools-opened", () => {
-    win.webContents.closeDevTools();
-  });
+  // win.webContents.on("devtools-opened", () => {
+  //   win.webContents.closeDevTools();
+  // });
 }
 
 app.whenReady().then(async () => {
-  Menu.setApplicationMenu(null);
+  // prepareWindow();
 
   startBackend(app);
 
@@ -50,4 +69,8 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("will-quit", () => {
+  globalShortcut.unregisterAll();
 });
