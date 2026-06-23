@@ -1,5 +1,6 @@
-const net = require("net");
-const { Menu, globalShortcut } = require("electron");
+import net from "net";
+import { Menu, globalShortcut } from "electron";
+import path from "path";
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -22,20 +23,15 @@ function prepareWindow(app) {
     app.setAppUserModelId(app.name);
   }
 
-  if (app.isPackaged) {
-    const iconPath = path.join(process.resourcesPath, "frontend", "icon.png");
-    app.dock.setIcon(iconPath);
-  }
+  Menu.setApplicationMenu(null);
 
-//   Menu.setApplicationMenu(null);
-
-//   // Bloquer les raccourcis clavier courants des DevTools (F12, Ctrl+Shift+I, Cmd+Orf+I)
-//   globalShortcut.register("CommandOrControl+Shift+I", () => {
-//     return false; // Ne fait rien
-//   });
-//   globalShortcut.register("F12", () => {
-//     return false;
-//   });
+  // Bloquer les raccourcis clavier courants des DevTools (F12, Ctrl+Shift+I, Cmd+Orf+I)
+  globalShortcut.register("CommandOrControl+Shift+I", () => {
+    return false; // Ne fait rien
+  });
+  globalShortcut.register("F12", () => {
+    return false;
+  });
 }
 
 

@@ -1,7 +1,6 @@
-const { app, BrowserWindow } = require("electron");
-
-const path = require("path");
-const waitOn = require("wait-on");
+import { app, BrowserWindow } from "electron";
+import path from "node:path";
+import waitOn from "wait-on";
 
 import { startBackend, stopBackend } from "./backend.js";
 import { prepareWindow, getFreePort, quitWindow } from "./utils.js";
