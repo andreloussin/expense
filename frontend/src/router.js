@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
@@ -29,7 +29,7 @@ const routes = [
 ];
 
 export default createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
 
   routes,
 });

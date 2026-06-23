@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "vite-plugin-bundle-obfuscator": "^1.12.0"
   }
 }
