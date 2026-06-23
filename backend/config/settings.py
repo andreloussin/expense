@@ -74,7 +74,6 @@ Public_Schema_Is_Strictly_Shared = True
 TENANT_CREATION_FAILS_IF_DOMAIN_NOT_FOUND = False
 
 MIDDLEWARE = [
-    "django_tenants.middleware.main.TenantMainMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -83,7 +82,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'accounts.middleware.UserTenantMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -174,6 +172,6 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'accounts.authentication.TenantJWTAuthentication',
     ],
 }
