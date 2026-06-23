@@ -7,6 +7,7 @@ import { logout } from "../services/auth";
 const router = useRouter();
 const categories = ref([]);
 const expenses = ref([]);
+const expenseTitle = ref(null);
 
 const categoryForm = ref({ name: "" });
 const expenseForm = ref({
@@ -92,6 +93,11 @@ async function deleteExpense(id) {
   }
 }
 
+function onCategoryClick(categoryId) {
+  expenseForm.value.category = categoryId;
+  expenseTitle.value.focus();
+}
+
 function disconnect() {
   logout();
 
@@ -141,12 +147,16 @@ onMounted(loadAll);
           <input v-model="categoryForm.name" placeholder="Ex: Transport" />
           <button type="submit">Ajouter</button>
         </form>
+        <div id="categories-list">
+          <h3>Catégories existantes</h3>
+          <span class="category-tag" v-for="cat in categories" :key="cat.id" @click="onCategoryClick(cat.id)">{{ cat.name }}</span>
+        </div>
       </div>
 
       <div class="panel">
         <h2>Ajouter une dépense</h2>
         <form @submit.prevent="addExpense" class="form">
-          <input v-model="expenseForm.title" placeholder="Ex: Essence" />
+          <input ref="expenseTitle" v-model="expenseForm.title" placeholder="Ex: Essence" />
           <input
             v-model="expenseForm.amount"
             type="number"
@@ -235,6 +245,17 @@ onMounted(loadAll);
 
 .logout:hover {
   opacity: 0.85;
+}
+
+.category-tag {
+  display: inline-block;
+  background: #e5e7eb;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
 }
 
 .stats {

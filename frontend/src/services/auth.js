@@ -2,7 +2,6 @@ import api from "./api"
 
 
 export async function login(username, password){
-
     const response = await api.post(
         "/auth/login/",
         {
@@ -27,7 +26,6 @@ export async function login(username, password){
 
 
 export async function register(data){
-
     const response = await api.post(
         "/auth/register/",
         data
@@ -39,16 +37,16 @@ export async function register(data){
 
 
 export function logout(){
-
     localStorage.removeItem("access_token")
     localStorage.removeItem("refresh_token")
-
 }
 
 
 
 export function isAuthenticated(){
-
     return !!localStorage.getItem("access_token")
+}
 
+export function getAccessToken(){
+    return localStorage.getItem("access_token")
 }
