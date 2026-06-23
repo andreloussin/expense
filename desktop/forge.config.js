@@ -13,6 +13,15 @@ module.exports = {
   rebuildConfig: {},
   makers: [
     {
+      name: "@electron-forge/maker-nsis",
+      config: {
+        name: "Expenzo",
+        productName: "Expenzo",
+        oneClick: false,
+        allowToChangeInstallationDirectory: true,
+      }
+    },
+    {
       name: '@electron-forge/maker-squirrel',
       config: {
         name: 'Expenzo',
