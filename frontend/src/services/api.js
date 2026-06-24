@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getAccessToken, logout } from "./auth";
 import router from "../router";
+import { getSelectedTenantId } from "./tenant";
 
 const api = axios.create({
   baseURL: window.config?.API_URL ?? import.meta.env.VITE_API_BASE_URL,
@@ -12,6 +13,12 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    const tenantId = getSelectedTenantId();
+
+    if (tenantId) {
+      config.headers["X-Tenant-Id"] = tenantId;
     }
 
     return config;
