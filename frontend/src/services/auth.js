@@ -39,6 +39,8 @@ export async function register(data){
 export function logout(){
     localStorage.removeItem("access_token")
     localStorage.removeItem("refresh_token")
+    localStorage.removeItem("tenant_id")
+    localStorage.removeItem("tenant_name")
 }
 
 

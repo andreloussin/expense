@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import api from "../services/api";
 import { useRouter } from "vue-router";
 import { logout } from "../services/auth";
+import { getSelectedTenantName, clearTenant } from "../services/tenant";
 
 const router = useRouter();
 const categories = ref([]);
@@ -17,6 +18,14 @@ const expenseForm = ref({
   category: "",
   note: "",
 });
+
+const tenantName = getSelectedTenantName();
+
+function changeTenant() {
+  // clearTenant();
+
+  router.push("/select-tenant");
+}
 
 const loading = ref(false);
 const errorMessage = ref("");
@@ -113,13 +122,28 @@ onMounted(loadAll);
       <div class="header-top">
         <div>
           <h1>Mini Suivi de Dépenses</h1>
+
           <p>
             Application Django + Vue + PostgreSQL, prête pour Electron plus
             tard.
           </p>
         </div>
 
-        <button class="logout" @click="disconnect">Déconnexion</button>
+        <div class="actions">
+          <div class="tenant-badge" @click="changeTenant">
+            <div class="tenant-avatar">
+              {{ tenantName.charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <small> Espace actuel </small>
+              <strong>
+                {{ tenantName }}
+              </strong>
+            </div>
+            <span> ⇄ </span>
+          </div>
+          <button class="logout" @click="disconnect">Déconnexion</button>
+        </div>
       </div>
       <div class="stats">
         <div class="card">
@@ -149,14 +173,25 @@ onMounted(loadAll);
         </form>
         <div id="categories-list">
           <h3>Catégories existantes</h3>
-          <span class="category-tag" v-for="cat in categories" :key="cat.id" @click="onCategoryClick(cat.id)">{{ cat.name }}</span>
+          <span
+            class="category-tag"
+            v-for="cat in categories"
+            :key="cat.id"
+            @click="onCategoryClick(cat.id)"
+            >{{ cat.name }}</span
+          >
+          <span v-if="categories.length === 0">Aucune catégorie pour le moment.</span>
         </div>
       </div>
 
       <div class="panel">
         <h2>Ajouter une dépense</h2>
         <form @submit.prevent="addExpense" class="form">
-          <input ref="expenseTitle" v-model="expenseForm.title" placeholder="Ex: Essence" />
+          <input
+            ref="expenseTitle"
+            v-model="expenseForm.title"
+            placeholder="Ex: Essence"
+          />
           <input
             v-model="expenseForm.amount"
             type="number"
@@ -336,6 +371,124 @@ button.danger {
   .expense {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tenant-badge {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  background: white;
+
+  padding: 8px 12px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.tenant-badge:hover {
+  transform: translateY(-2px);
+}
+
+.tenant-avatar {
+  width: 38px;
+
+  height: 38px;
+
+  border-radius: 50%;
+
+  background: #111827;
+
+  color: white;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  font-weight: bold;
+}
+
+.tenant-badge small {
+  display: block;
+
+  color: #6b7280;
+
+  font-size: 0.7rem;
+}
+
+.tenant-badge strong {
+  display: block;
+
+  font-size: 0.9rem;
+}
+
+.tenant-badge span {
+  font-size: 1.3rem;
+
+  color: #6b7280;
+}
+@media (max-width: 800px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header-top {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 16px;
+  }
+
+  .header-top h1 {
+    font-size: 1.6rem;
+  }
+
+  .actions {
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .tenant-badge {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+  .logout {
+    width: 100%;
+  }
+
+  .grid,
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .expense {
+    flex-direction: column;
+
+    align-items: flex-start;
+
     gap: 10px;
   }
 }

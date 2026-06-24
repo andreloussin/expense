@@ -5,6 +5,8 @@ import Register from "./views/Register.vue";
 import App from "./App.vue";
 import { isAuthenticated } from "./services/auth.js";
 import Home from "./views/Home.vue";
+import SelectTenant from "./views/SelectTenant.vue";
+import { isTenantSelected } from "./services/tenant.js";
 
 const routes = [
   {
@@ -24,8 +26,22 @@ const routes = [
       if (!isAuthenticated()) {
         return "/login";
       }
+
+      if (! isTenantSelected()) {
+        return "/select-tenant";
+      }
     },
   },
+
+  {
+    path: "/select-tenant",
+    component: SelectTenant,
+    beforeEnter: () => {
+      if (!isAuthenticated()) {
+        return "/login";
+      }
+    },
+  }
 ];
 
 export default createRouter({
