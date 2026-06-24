@@ -1,8 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from tenants.models import Tenant
-import uuid
-from django.db import connection, transaction
+from django.db import transaction
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -18,22 +22,42 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-
-        print("SCHEMA AVANT USER:", connection.schema_name)
-
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"]
         )
 
-        print("SCHEMA APRES USER:", connection.schema_name) 
-        
-        Tenant.objects.create(
-            user=user,
-            schema_name=f"tenant_{uuid.uuid4().hex[:8]}"
-        )
-        
-        print("SCHEMA APRES TENANT:", connection.schema_name)
-
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    tenants = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "tenants"
+        ]
+
+    def get_tenants(self, user):
+        return [
+            {
+                "id": tenant.id,
+                "name": tenant.name,
+                "is_active": tenant.is_active,
+                "schema_name": tenant.schema_name
+            }
+            for tenant in user.tenants.all()
+        ]
+        
+
+class LoginSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+        data["user"] = UserSerializer(user).data
+        return data
