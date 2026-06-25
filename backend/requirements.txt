@@ -9,6 +9,8 @@ packaging==26.2
 pefile==2024.8.26
 psycopg==3.3.4
 psycopg-binary==3.3.4
+pyarmor==9.2.5
+pyarmor.cli.core==8.1.1
 pyinstaller==6.21.0
 pyinstaller-hooks-contrib==2026.6
 PyJWT==2.13.0
