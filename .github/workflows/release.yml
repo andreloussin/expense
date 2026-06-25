@@ -1,0 +1,128 @@
+name: Build and Release Expenzo
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # -------------------------------
+      # Frontend Vue
+      # -------------------------------
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            desktop/package-lock.json
+
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+
+      - name: Copy frontend to Electron resources
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force desktop/resources/frontend -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory desktop/resources/frontend
+
+          Copy-Item frontend/dist/* desktop/resources/frontend -Recurse
+
+
+      # -------------------------------
+      # Backend Django
+      # -------------------------------
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m venv .venv
+          .venv\Scripts\activate
+          pip install -r requirements.txt
+          pip install pyarmor pyinstaller
+
+
+      - name: Obfuscate backend
+        working-directory: backend
+        shell: pwsh
+        run: |
+          .venv\Scripts\activate
+
+          pyarmor gen `
+            -O .pyarmor_dist `
+            server.py `
+            accounts `
+            config `
+            expenses `
+            tenants
+
+
+      - name: Build backend executable
+        working-directory: backend
+        shell: pwsh
+        run: |
+          .venv\Scripts\activate
+          pyinstaller expense-server.spec
+
+
+      - name: Copy backend to Electron resources
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force desktop/resources/backend -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory desktop/resources/backend
+
+          Copy-Item backend/dist/expense-server.exe `
+                    desktop/resources/backend/
+
+
+      # -------------------------------
+      # Electron
+      # -------------------------------
+
+      - name: Install Electron dependencies
+        working-directory: desktop
+        run: |
+          npm ci
+
+
+      - name: Build Electron installer
+        working-directory: desktop
+        run: |
+          npm run build
+
+
+      # -------------------------------
+      # GitHub Release
+      # -------------------------------
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            desktop/release/Expenzo Setup *.exe
+            desktop/release/latest.yml

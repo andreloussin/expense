@@ -31,20 +31,47 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
+# Logging configuration
+import logging
 
-# Application definition
+logging.basicConfig(level=logging.DEBUG)
 
-INSTALLED_APPS = [
+# Shared application used by all tenants
+
+SHARED_APPS = [
+    'django_tenants',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+
     "corsheaders",
     "rest_framework",
-    "expenses",
+
+    "tenants",
+    "accounts",
 ]
+
+# Tenant-specific applications
+
+TENANT_APPS = [
+    "expenses"
+]
+
+# Application definition
+
+INSTALLED_APPS = list(
+    SHARED_APPS + TENANT_APPS + ['django.contrib.staticfiles']
+)
+
+
+# Tenant model and domain
+TENANT_MODEL = "tenants.Tenant"
+PUBLIC_SCHEMA_NAME = "public"
+TENANT_DOMAIN_MODEL = "tenants.Domain"
+Public_Schema_Is_Strictly_Shared = True
+TENANT_CREATION_FAILS_IF_DOMAIN_NOT_FOUND = False
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -82,18 +109,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_tenants.postgresql_backend",
         "NAME": os.getenv("DB_NAME", "expense_db"),
         "USER": os.getenv("DB_USER", "expense_user"),
         "PASSWORD": os.getenv("DB_PASSWORD", "expense_pass"),
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    },
-    'fallback': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "PORT": os.getenv("DB_PORT", "5435"),
     }
 }
+
+DATABASE_ROUTERS = (
+    "django_tenants.routers.TenantSyncRouter",
+)
 
 
 # Password validation
@@ -138,10 +165,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "x-tenant-id",
+]
 
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        "rest_framework.permissions.IsAuthenticated",
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'accounts.authentication.TenantJWTAuthentication',
+    ],
+}
+
+# Simple JWT settings
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }

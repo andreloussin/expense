@@ -1,0 +1,74 @@
+{
+  "name": "Expenzo",
+  "version": "1.0.0",
+  "description": "Simple Expense Traking app to test electron with vue and jango on backend",
+  "main": "src/main.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"electronmon src/main.js\"",
+    "obfuscate-electron": "javascript-obfuscator src --output electron-dist --compact true --control-flow-flattening true --string-array true",
+    "build": "npm run obfuscate-electron && electron-builder --win",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
+    "electronmon": "^2.0.4",
+    "vite": "^8.1.0",
+    "vite-plugin-bundle-obfuscator": "^1.12.0"
+  },
+  "dependencies": {
+    "javascript-obfuscator": "^5.4.3",
+    "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "com.company.expenzo",
+    "productName": "Expenzo",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      {
+        "from": "electron-dist",
+        "to": "src"
+      },
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/frontend",
+        "to": "frontend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "./assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true
+    }
+  }
+}
