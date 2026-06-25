@@ -32,7 +32,11 @@
       "output": "release"
     },
     "files": [
-      "electron-dist/**/*"
+      {
+        "from": "electron-dist",
+        "to": "src"
+      },
+      "package.json"
     ],
     "extraResources": [
       {
