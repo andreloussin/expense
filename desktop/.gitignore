@@ -103,3 +103,4 @@ resources/backend/*
 # Releases
 release/
 extracted/
+electron-dist

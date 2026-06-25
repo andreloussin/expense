@@ -32,6 +32,13 @@ jobs:
             desktop/package-lock.json
 
 
+      - name: Create frontend env
+        working-directory: frontend
+        shell: pwsh
+        run: |
+          Copy-Item .env.example .env
+
+
       - name: Build frontend
         working-directory: frontend
         run: |
@@ -80,6 +87,14 @@ jobs:
             config `
             expenses `
             tenants
+
+      - name: Create backend env
+        working-directory: backend
+        shell: pwsh
+        run: |
+          Copy-Item .env.example .env
+          Add-Content .env "SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}"
+          Add-Content .env "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
 
       - name: Build backend executable
