@@ -1,12 +1,12 @@
-# Expense Desktop
+# Expenzo Desktop
 
 Application desktop **Windows** basée sur :
 
 * **Backend** : Django + API
 * **Frontend** : Vue / Vite
-* **Desktop** : Electron
+* **Desktop** : Electron + Vite (géré via Electron Builder)
 
-Le projet permet de construire une application Windows embarquant le frontend compilé, le backend packagé et l’exécutable Electron final.
+Le projet permet de construire une application Windows embarquant le frontend compilé, le backend packagé et l’exécutable final.
 
 ---
 
@@ -17,6 +17,10 @@ expense/
 ├── backend/
 ├── frontend/
 ├── desktop/
+│   ├── resources/
+│   │   └── backend/     # Reçoit le binaire Django
+│   ├── .vite/           # Reçoit le build du main process d'Electron
+│   └── release/         # Reçoit l'exécutable final d'electron-builder
 ├── docs/
 └── dev.py
 ```
@@ -40,9 +44,9 @@ Le build suit cet ordre :
 
 1. Build du **frontend Vue**
 2. Build du **backend Django**
-3. Copie des fichiers générés dans `desktop/resources/`
-4. Build de **Electron**
-5. Génération de l’exécutable Windows
+3. Copie de l'exécutable Django dans `desktop/resources/backend/`
+4. Build et obfuscation d'**Electron (Vite)**
+5. Génération de l'installateur Windows (NSIS) via `electron-builder`
 
 ---
 
@@ -61,10 +65,10 @@ Activer l’environnement virtuel puis installer les dépendances :
 pip install -r requirements.txt
 ```
 
-Obfusquer le code du backend avec pyarmor : _Les fichiers obfusqués seront placé dans .pyarmor_dist/_
+Obfusquer le code du backend avec pyarmor (*les fichiers obfusqués seront placés dans `.pyarmor_dist/`*) :
 
 ```bash
- pyarmor gen -O .pyarmor_dist server.py accounts config expenses tenants
+pyarmor gen -O .pyarmor_dist server.py accounts config expenses tenants
 ```
 
 Générer l’exécutable du backend avec PyInstaller :
@@ -98,7 +102,6 @@ npm install
 ```
 
 Compiler le frontend en mode production :
-_Le code sera automatiquement obfsqué_
 
 ```bash
 npm run build
@@ -112,38 +115,15 @@ Le build frontend est disponible dans :
 frontend/dist/
 ```
 
-Contenu typique :
-
-```text
-frontend/dist/
-├── index.html
-└── assets/
-```
-
 ---
 
-## 3. Copier les fichiers vers Electron
+## 3. Copier le backend vers Electron
 
-L’application Electron utilise le dossier :
+L’application Electron utilise le dossier `resources/` pour embarquer le serveur.
 
-```text
-desktop/resources/
-```
+### Copier le binaire Django
 
-La structure attendue est :
-
-```text
-desktop/resources/
-├── backend/
-│   └── expense-server.exe
-└── frontend/
-    ├── index.html
-    └── assets/
-```
-
-### Copier le backend
-
-Copier :
+Copier le fichier :
 
 ```text
 backend/dist/expense-server.exe
@@ -155,19 +135,7 @@ vers :
 desktop/resources/backend/
 ```
 
-### Copier le frontend
-
-Copier tout le contenu de :
-
-```text
-frontend/dist/
-```
-
-vers :
-
-```text
-desktop/resources/frontend/
-```
+*(Note : Lors du build final, `electron-builder` utilise la règle `extraResources` pour inclure automatiquement ce dossier dans l'application).*
 
 ---
 
@@ -185,43 +153,110 @@ Installer les dépendances :
 npm install
 ```
 
-Tester l’application en local :
+### Commandes disponibles
+
+* **Lancer l'application en développement** :
 
 ```bash
-npm start
+npm run dev
 ```
 
-Générer l’exécutable Windows :
+Cette commande démarre simultanément :
+
+* Le serveur de développement Vite.
+* Electron avec rechargement automatique via Electronmon.
+
+Le mode développement utilise directement les fichiers sources Electron :
+
+```text
+src/
+├── main.js
+└── preload.js
+```
+
+ainsi que les ressources locales :
+
+```text
+resources/
+├── frontend/
+└── backend/
+```
+
+---
+
+* **Générer l'installateur Windows de production** :
 
 ```bash
-npm run make
+npm run build
 ```
+
+Cette commande exécute automatiquement :
+
+1. L'obfuscation du code Electron :
+
+```bash
+npm run obfuscate-electron
+```
+
+Le code :
+
+```text
+src/
+├── main.js
+└── preload.js
+```
+
+est transformé en :
+
+```text
+electron-dist/
+├── main.js
+└── preload.js
+```
+
+2. La génération de l'application Windows via Electron Builder.
+
+Electron Builder assemble ensuite :
+
+```text
+electron-dist/
+└──  Code Electron obfusqué
+
+resources/frontend/
+└──  Frontend Vue déjà compilé et obfusqué
+
+resources/backend/
+└──  Backend Django compilé et protégé
+```
+
+ pour produire l'installateur final.
 
 ---
 
 ## 5. Fichiers générés par Electron
 
-Les fichiers de sortie se trouvent généralement dans :
+Les fichiers de sortie sont générés dans :
 
 ```text
-desktop/out/
+desktop/release/
 ```
 
-Selon la configuration d’Electron Forge, on peut y trouver :
+Vous y trouverez notamment :
 
 ```text
-desktop/out/
-├── expense-desktop-win32-x64/
-└── make/
-    └── squirrel.windows/
-        └── ExpenseDesktopSetup.exe
+desktop/release/
+├── Expenzo Setup x.x.x.exe
+├── latest.yml
+└── win-unpacked/
 ```
 
-Le fichier principal à distribuer est souvent :
+### Caractéristiques de l'installateur Expenzo
 
-```text
-desktop/out/make/**/ExpenseDesktopSetup.exe
-```
+* Assistant d'installation Windows (NSIS).
+* Choix du répertoire d'installation.
+* Création d'un raccourci sur le Bureau.
+* Création d'un raccourci dans le Menu Démarrer.
+* Installation simplifiée pour l'utilisateur final.
 
 ---
 
@@ -230,68 +265,68 @@ desktop/out/make/**/ExpenseDesktopSetup.exe
 Depuis la racine du projet :
 
 ```bash
-python dev.py electron-build
+bash build-app.sh
 ```
 
 Cette commande exécute généralement :
 
-1. `npm run build` dans `frontend/`
-2. copie de `frontend/dist/` vers `desktop/resources/frontend/`
-3. `pyinstaller expense-server.spec` dans `backend/`
-4. copie de `backend/dist/expense-server.exe` vers `desktop/resources/backend/`
-5. `npm run make` dans `desktop/`
+1. Nettoyage des anciens fichiers générés :
+    - `backend/build/`
+    - `backend/dist/`
+    - `backend/.pyarmor_dist/`
+    - `frontend/dist/`
+    - `desktop/electron-dist/`
+    - `desktop/release/`
+2. `npm run build` dans `frontend/`
+3. Copie de `frontend/dist/` vers `desktop/resources/frontend/`
+4. Obfuscation du backend avec **PyArmor** dans `backend/` :
+    ```bash
+    pyarmor gen -O .pyarmor_dist server.py accounts config expenses tenants
+    pyinstaller expense-server.spec dans backend/
+    ```
+5. Copie de `backend/dist/` vers `desktop/resources/backend/`
+6. `npm run package` dans `desktop/`
+7. `npm run dist` dans `desktop/`
 
 ---
 
 ## 7. Nettoyage avant un build propre
 
-Si nécessaire, supprimer les dossiers générés puis relancer le build :
+Si nécessaire, supprimez les dossiers temporaires avant de relancer un build :
 
 ### Backend
-
 ```text
 backend/build/
 backend/dist/
+backend/.pyarmor_dist/
 ```
 
 ### Frontend
-
 ```text
 frontend/dist/
 ```
 
 ### Electron
-
 ```text
-desktop/out/
+desktop/electron-dist/
+desktop/release/
 ```
 
 ---
 
 ## 8. Résumé rapide
 
-| Étape          | Commande                          | Résultat                          |
-| -------------- | --------------------------------- | --------------------------------- |
-| Build backend  | `pyinstaller expense-server.spec` | `backend/dist/expense-server.exe` |
-| Build frontend | `npm run build`                   | `frontend/dist/`                  |
-| Build Electron | `npm run make`                    | Exécutable Windows                |
-| Build complet  | `python dev.py electron-build`    | Package final                     |
+| Étape          | Commande                          | Résultat de sortie                     |
+| -------------- | --------------------------------- | -------------------------------------- |
+| Build backend  | `pyarmor gen -O .pyarmor_dist server.py accounts config expenses tenants` et `pyinstaller expense-server.spec` | `backend/dist/expense-server.exe`      |
+| Build frontend | `npm run build`                   | `frontend/dist/`                       |
+| Build Electron | `npm run dist`                    | `desktop/release/Expenzo Setup...exe`  |
+| Build complet  | `bash build-app.sh`    | Package d'installation Windows final   |
 
 ---
 
 ## 9. Points importants
 
-* Le backend doit être buildé avant Electron.
-* Le frontend doit être compilé avant la copie dans `desktop/resources/frontend/`.
-* Le contenu de `desktop/resources/` est intégré dans l’application Electron finale.
-* L’exécutable final est généré dans `desktop/out/`.
-
----
-
-## 10. Fichier de référence
-
-Commande principale recommandée pour générer l’application Windows :
-
-```bash
-python dev.py electron-build
-```
+* **Sécurité** : Le code JavaScript principal de l'application est protégé lors de la compilation grâce à `vite-plugin-bundle-obfuscator`.
+* **Ressources** : Le binaire Django doit obligatoirement être présent dans `desktop/resources/backend/` avant de lancer le `npm run dist`.
+* **Identifiant Unique** : L'application est enregistrée sous l'AppId `com.loussin.expenzo`.

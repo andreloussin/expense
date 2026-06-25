@@ -99,3 +99,7 @@ resources/backend/
 
 # Keep empty resource folders
 !resources/.gitkeep
+
+# Releases
+release/
+extracted/
