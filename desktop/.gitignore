@@ -92,10 +92,10 @@ typings/
 out/
 
 # Generated frontend
-resources/frontend/
+resources/frontend/*
 
 # Embedded backend build
-resources/backend/
+resources/backend/*
 
 # Keep empty resource folders
 !resources/.gitkeep

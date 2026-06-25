@@ -5,6 +5,11 @@ import waitOn from "wait-on";
 import { startBackend, stopBackend } from "./backend.js";
 import { prepareWindow, getFreePort, quitWindow } from "./utils.js";
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function createWindow(port) {
   await waitOn({
     resources: [`tcp:${port}`],
@@ -28,14 +33,14 @@ async function createWindow(port) {
     win.loadFile(path.join(process.resourcesPath, "frontend", "index.html"));
   } else {
     win.loadFile(
-      path.join(__dirname, "..", "..", "resources", "frontend", "index.html")
+      path.join(__dirname, "..", "resources", "frontend", "index.html")
     );
   }
 
-  // // Bloquer l'ouverture des DevTools via le code
-  // win.webContents.on("devtools-opened", () => {
-  //   win.webContents.closeDevTools();
-  // });
+  // Bloquer l'ouverture des DevTools via le code
+  win.webContents.on("devtools-opened", () => {
+    win.webContents.closeDevTools();
+  });
 }
 
 app.whenReady().then(async () => {

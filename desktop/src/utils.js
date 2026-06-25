@@ -1,6 +1,6 @@
 import net from "net";
 import { Menu, globalShortcut } from "electron";
-import path from "path";
+import { stopBackend } from "./backend.js";
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -34,13 +34,9 @@ function prepareWindow(app) {
   });
 }
 
-
 const quitWindow = () => {
   globalShortcut.unregisterAll();
+  stopBackend();
 };
 
-module.exports = {
-  getFreePort,
-  prepareWindow,
-  quitWindow,
-};
+export { getFreePort, prepareWindow, quitWindow };

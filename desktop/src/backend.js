@@ -4,7 +4,7 @@ import http from "node:http";
 
 let backendProcess = null;
 
-export function startBackend(app, port = 8765) {
+function startBackend(app, port = 8765) {
   return new Promise((resolve, reject) => {
     let backendPath;
 
@@ -59,7 +59,7 @@ export function startBackend(app, port = 8765) {
   });
 }
 
-export function stopBackend() {
+function stopBackend() {
   if (backendProcess) {
     console.log("Stopping backend...");
 
@@ -96,7 +96,7 @@ function waitForBackend(port, timeout = 30000) {
   });
 }
 
-module.exports = {
+export {
   startBackend,
   stopBackend,
   waitForBackend,
