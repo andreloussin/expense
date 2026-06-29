@@ -1,26 +1,31 @@
 import fs from 'fs';
 import path from 'path';
 
-// 1. Lire manuellement le fichier .env local
-const envPath = path.resolve('.env');
-if (!fs.existsSync(envPath)) {
-  console.error("Erreur : Fichier .env introuvable !");
+let publicKey = process.env.PUBLIC_KEY;
+
+// 1. Si la variable n'est pas dans le système, on tente de lire le .env local (Dev local)
+if (!publicKey) {
+  const envPath = path.resolve('.env');
+  
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const match = envContent.match(/PUBLIC_KEY=["']([\s\S]*?)["']/);
+    if (match) {
+      publicKey = match[1].replace(/\\n/g, '\n');
+    }
+  }
+}
+
+// 2. Blocage si la variable reste introuvable partout
+if (!publicKey) {
+  console.error("Erreur : PUBLIC_KEY introuvable dans process.env ET dans le fichier .env !");
   process.exit(1);
 }
 
-const envContent = fs.readFileSync(envPath, 'utf8');
+// Nettoyage des sauts de ligne si la clé provient d'une chaîne brute avec des "\n" textuels
+publicKey = publicKey.replace(/\\n/g, '\n');
 
-// Extraction de la valeur de la clé publique
-const match = envContent.match(/PUBLIC_KEY=["']([\s\S]*?)["']/);
-
-if (!match) {
-  console.error("Erreur : PUBLIC_KEY non trouvée dans le .env");
-  process.exit(1);
-}
-
-const publicKey = match[1].replace(/\\n/g, '\n');
-
-// 2. Écrire la clé dans un fichier JS temporaire dans votre dossier src
+// 3. Écrire la clé dans le fichier JS temporaire
 const configContent = `// Fichier généré automatiquement au build - Ne pas modifier\nexport const PUBLIC_KEY = \`${publicKey}\`;\n`;
 fs.writeFileSync(path.join('src', 'license-config.js'), configContent);
 
