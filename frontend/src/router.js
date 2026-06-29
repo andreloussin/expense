@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
-import App from "./App.vue";
 import { isAuthenticated } from "./services/auth.js";
 import Home from "./views/Home.vue";
 import SelectTenant from "./views/SelectTenant.vue";
@@ -27,7 +26,7 @@ const routes = [
         return "/login";
       }
 
-      if (! isTenantSelected()) {
+      if (!isTenantSelected()) {
         return "/select-tenant";
       }
     },
@@ -41,7 +40,7 @@ const routes = [
         return "/login";
       }
     },
-  }
+  },
 ];
 
 export default createRouter({

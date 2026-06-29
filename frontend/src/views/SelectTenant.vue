@@ -102,13 +102,13 @@ function setSelectedTenant(tenant) {
       <div class="header">
         <h1>Choisir un espace</h1>
 
-        <p>Sélectionnez l'entreprise à laquelle vous souhaitez accéder.</p>
+        <p>Sélectionnez l'espace à laquelle vous souhaitez accéder.</p>
       </div>
 
       <div class="search-box">
         <span>🔎</span>
 
-        <input v-model="search" placeholder="Rechercher une entreprise..." />
+        <input v-model="search" placeholder="Rechercher ou créer un espace..." />
       </div>
 
       <div v-if="loading" class="state">Chargement des espaces...</div>
@@ -124,7 +124,7 @@ function setSelectedTenant(tenant) {
           <div class="tenant-info">
             <h3>Créer "{{ search }}"</h3>
 
-            <p>Nouvel espace entreprise</p>
+            <p>Nouvel espace</p>
 
             <p v-if="error" class="error-message">
               {{ error }}
