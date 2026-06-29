@@ -104,3 +104,6 @@ resources/backend/*
 release/
 extracted/
 electron-dist
+
+# Keys
+license-config.js
