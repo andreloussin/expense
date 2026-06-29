@@ -33,8 +33,6 @@ export function verifyLicenseOffline() {
     const decodedRaw = Buffer.from(licenseKey, "base64url").toString("utf8");
     const { data, sig } = JSON.parse(decodedRaw);
 
-    console.log("License Data : ", data);
-
     // 2. Reconstituer le message original signé par Django
     const dataString = JSON.stringify(data);
 

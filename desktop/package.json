@@ -39,6 +39,7 @@
         "from": "electron-dist",
         "to": "src"
       },
+      "src/activation.html",
       "package.json"
     ],
     "extraResources": [

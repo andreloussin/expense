@@ -106,4 +106,4 @@ extracted/
 electron-dist
 
 # Keys
-license-config.js
+src/license-config.js
