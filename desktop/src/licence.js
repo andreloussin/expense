@@ -1,7 +1,7 @@
 import * as machineIdModule from "node-machine-id";
 import crypto from "crypto";
 import Store from "electron-store";
-import { PUBLIC_KEY } from './license-config.js';
+import { LICENSE_PUBLIC_KEY } from "./license-config.js";
 
 // On extrait la fonction synchrone depuis le module complet
 const machineIdSync = machineIdModule.default
@@ -43,7 +43,7 @@ export function verifyLicenseOffline() {
     verifier.update(dataString);
     verifier.end();
 
-    const isSignatureValid = verifier.verify(PUBLIC_KEY, sig, "base64");
+    const isSignatureValid = verifier.verify(LICENSE_PUBLIC_KEY, sig, "base64");
     if (!isSignatureValid) {
       return { valid: false, reason: "Clé de licence corrompue ou falsifiée." };
     }
