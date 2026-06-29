@@ -11,7 +11,7 @@
     "prebuild": "node inject-key.js",
     "dev": "npm run prebuild && electronmon src/main.js",
     "obfuscate-electron": "javascript-obfuscator src --output electron-dist --compact true --control-flow-flattening true --string-array true",
-    "build": "npm run prebuild && npm run obfuscate-electron && electron-builder --win",
+    "build": "npm run obfuscate-electron && electron-builder --win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
