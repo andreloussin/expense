@@ -127,6 +127,8 @@ jobs:
 
       - name: Build Electron installer
         working-directory: desktop
+        env:
+          LICENSE_PUBLIC_KEY: ${{ secrets.LICENSE_PUBLIC_KEY }} 
         run: |
           npm run build
 
