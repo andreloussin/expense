@@ -1,0 +1,44 @@
+# Django Core
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Django Media and Static Assets
+media/
+staticfiles/
+static_cdn/
+
+# Python Caches and Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+htmlcov/
+.toml
+
+# Environments and Secrets
+.env
+.secrets
+*.env.[a-zA-Z]*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS System Files
+.DS_Store
+Thumbs.db
+
+# RSA keys
+*.pem

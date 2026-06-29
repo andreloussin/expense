@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Activation de l'application</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #111827;
+        color: #f3f4f6;
+        padding: 40px 20px;
+        margin: 0;
+      }
+      .container {
+        max-width: 650px;
+        margin: auto;
+      }
+      .card {
+        background: #1f2937;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        border: 1px solid #374151;
+        margin-bottom: 24px;
+      }
+      h2 {
+        margin-top: 0;
+        color: #fff;
+        font-size: 1.5rem;
+      }
+      p.subtitle {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-top: -10px;
+        margin-bottom: 25px;
+        line-height: 1.4;
+      }
+
+      /* Zone Principale de Saisie / Dépôt */
+      label {
+        font-size: 0.9rem;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 8px;
+        color: #e5e7eb;
+      }
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: #0f172a;
+        border: 1px solid #374151;
+        color: #fff;
+        padding: 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        height: 100px;
+        resize: none;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+      }
+      textarea:focus {
+        border-color: #10b981;
+        outline: none;
+      }
+      .drop-zone {
+        border: 2px dashed #4b5563;
+        padding: 25px;
+        text-align: center;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        background: #111827;
+      }
+      .drop-zone.hover {
+        border-color: #10b981;
+        background: #14532d;
+        color: #fff;
+      }
+      .btn-main {
+        background: #059669;
+        color: white;
+        border: none;
+        padding: 14px;
+        width: 100%;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-main:hover {
+        background: #10b981;
+      }
+
+      /* Section d'aide et de propositions en cas d'absence de licence */
+      .help-section {
+        border-top: 1px solid #374151;
+        margin-top: 30px;
+        padding-top: 25px;
+      }
+      .help-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 15px;
+      }
+      .options-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .option-box {
+        background: #111827;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #374151;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .option-heading {
+        font-weight: bold;
+        color: #34d399;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+      .option-desc {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      .code-display {
+        background: #0f172a;
+        padding: 8px;
+        font-family: monospace;
+        color: #6ee7b7;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        word-break: break-all;
+        margin-bottom: 10px;
+        border: 1px solid #1e293b;
+      }
+      .action-link {
+        color: #60a5fa;
+        font-size: 0.75rem;
+        word-break: break-all;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
+      }
+      .action-link:hover {
+        text-decoration: underline;
+      }
+      .btn-secondary {
+        background: #374151;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.2s;
+      }
+      .btn-secondary:hover {
+        background: #4b5563;
+      }
+      .error {
+        color: #ef4444;
+        margin-top: 15px;
+        font-size: 0.9rem;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h2>Activation de la licence</h2>
+        <p class="subtitle">
+          Votre application est prête à être activée hors-ligne.
+        </p>
+
+        <!-- ZONE 1 : INJECTION DE LA LICENCE (PREMIER PLAN) -->
+        <div class="activation-form">
+          <label for="license-input">Coller la clé de licence</label>
+          <textarea
+            id="license-input"
+            placeholder="Collez ici le long jeton cryptographique fourni par votre espace client..."
+          ></textarea>
+
+          <div class="drop-zone" id="drop-zone">
+            Ou glissez-déposez votre fichier
+            <strong style="color: #fff">license.lic</strong> ici
+          </div>
+
+          <button class="btn-main" id="activate-btn">
+            Activer l'application
+          </button>
+          <div class="error" id="error-message"></div>
+        </div>
+
+        <!-- ZONE 2 : PROPOSITIONS SI L'UTILISATEUR N'A PAS ENCORE DE LICENCE -->
+        <div class="help-section">
+          <div class="help-title">
+            Vous n'avez pas encore de clé de licence ?
+          </div>
+          <div class="options-grid">
+            <!-- PROPOSITION A : Lien Direct Pré-rempli -->
+            <div class="option-box">
+              <div>
+                <div class="option-heading">Méthode Automatique</div>
+                <div class="option-desc">
+                  Ouvrez ou copiez ce lien sur un appareil connecté pour vous
+                  identifier et lier ce PC directement :
+                </div>
+                <a
+                  class="action-link"
+                  id="activation-link"
+                  href="#"
+                  target="_blank"
+                  >Génération du lien...</a
+                >
+              </div>
+              <button class="btn-secondary" id="copy-url-btn">
+                🔗 Copier le lien d'accès
+              </button>
+            </div>
+
+            <!-- PROPOSITION B : Copie manuelle du Machine ID -->
+            <div class="option-box">
+              <div>
+                <div class="option-heading">Méthode Manuelle</div>
+                <div class="option-desc">
+                  Allez sur votre espace client web, dans l'onglet "Mes
+                  Appareils", et déclarez cet identifiant unique :
+                </div>
+                <div class="code-display" id="machine-id-display">
+                  Chargement...
+                </div>
+              </div>
+              <button class="btn-secondary" id="copy-mid-btn">
+                📋 Copier le code PC
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const machineIdDisplay = document.getElementById("machine-id-display");
+      const activationLink = document.getElementById("activation-link");
+      const licenseInput = document.getElementById("license-input");
+      const dropZone = document.getElementById("drop-zone");
+      const activateBtn = document.getElementById("activate-btn");
+      const copyMidBtn = document.getElementById("copy-mid-btn");
+      const copyUrlBtn = document.getElementById("copy-url-btn");
+      const errorMessage = document.getElementById("error-message");
+
+      // Spécifiez l'URL racine de votre espace client Web Vue.js
+      const BASE_WEB_URL = "http:/127.0.0.1:8000/api/devices/";
+
+      // 1. Initialisation des identifiants matériels
+      const currentMid = window.electronAPI.getMachineId();
+      const targetUrl = `${BASE_WEB_URL}?mid=${currentMid}`;
+
+      machineIdDisplay.innerText = currentMid;
+      activationLink.href = targetUrl;
+      activationLink.innerText = targetUrl;
+
+      // 2. Actions de copie dans le presse-papiers
+      copyMidBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(currentMid);
+        copyMidBtn.innerText = "✓ Code copié !";
+        setTimeout(() => (copyMidBtn.innerText = "📋 Copier le code PC"), 2000);
+      });
+
+      copyUrlBtn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(targetUrl);
+        copyUrlBtn.innerText = "✓ Lien copié !";
+        setTimeout(
+          () => (copyUrlBtn.innerText = "🔗 Copier le lien d'accès"),
+          2000
+        );
+      });
+
+      // 3. Gestion du Glisser-Déposer (Drag and Drop)
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("hover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("hover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("hover");
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const rawLicense = event.target.result.trim();
+            licenseInput.value = rawLicense;
+            processActivation(rawLicense); // Validation automatique
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      // 4. Validation manuelle
+      activateBtn.addEventListener("click", () => {
+        processActivation(licenseInput.value.trim());
+      });
+
+      // 5. Exécution de la vérification IPC asymétrique
+      async function processActivation(licenseString) {
+        errorMessage.innerText = "";
+        if (!licenseString) {
+          errorMessage.innerText =
+            "Veuillez insérer une clé de licence valide.";
+          return;
+        }
+
+        window.electronAPI.saveLicense(licenseString);
+        const result = await window.electronAPI.checkLicense();
+
+        if (! result.valid) {
+          errorMessage.innerText = `Échec de l'activation : ${result.reason}`;
+          window.electronAPI.clearLicense();
+        }
+      }
+    </script>
+  </body>
+</html>
